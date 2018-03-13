@@ -11,11 +11,12 @@ import (
 func main() {
 	fmt.Println("Starting...")
 
-	router := SetupRouter()
+	// app.PostInstruction(nil)
+	app.GetInstructions(nil)
 
-	instruction = Instruction{ID: "Ale", EventStatus: "+55 53 8116 9639", EventName: "testName"}
+	// router := SetupRouter()
 
-	router.Run(":8080")
+	// router.Run(":8080")
 }
 
 func SetupRouter() *gin.Engine {
@@ -23,9 +24,9 @@ func SetupRouter() *gin.Engine {
 
 	v1 := router.Group("api/v1")
 	{
-		v1.GET("/instructions", app.GetInstructions)
+		// v1.GET("/instructions", app.GetInstructions)
 		// v1.GET("/instructions/:id", app.GetInstruction)
-		// v1.POST("/instructions", app.PostInstruction)
+		v1.POST("/instructions", app.PostInstruction)
 		// v1.PUT("/instructions/:id", app.UpdateInstruction)
 		// v1.DELETE("/instructions/:id", app.DeleteInstruction)
 	}
