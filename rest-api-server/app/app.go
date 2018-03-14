@@ -2,26 +2,41 @@ package app
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
+	"path/filepath"
 	"rest-api-server/models"
 
 	"github.com/gin-gonic/gin"
 	"gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
 )
 
-func GetInstructions(c *gin.Context) {
+func GetConnectionFromFile() string {
 
-	session, err := mgo.Dial("mongodb://earl:AllenWalker1!@ds111279.mlab.com:11279/vera")
+	absPath, _ := filepath.Abs("../rest-api-server/app/connectionString.txt")
+
+	byteArray, err := ioutil.ReadFile(absPath)
+	if err != nil {
+		panic(err)
+	}
+
+	return string(byteArray[:])
+}
+
+func GetInstructions(c *gin.Context) {
+	s := GetConnectionFromFile()
+	session, err := mgo.Dial(s + "/vera")
 	if err != nil {
 		panic(err)
 	}
 	defer session.Close()
 
 	fmt.Println("Creating db session...")
-	collection := session.DB("instructions").C("instruction")
+	collection := session.DB("vera").C("instructions")
 	var results []models.Instruction
 
-	err = collection.Find(nil).All(&results)
+	err = collection.Find(bson.M{}).All(&results)
 	if err != nil {
 		fmt.Println(err)
 	} else {
@@ -39,7 +54,8 @@ func PostInstruction(c *gin.Context) {
 
 	fmt.Println("dialing mongodb..")
 
-	session, err := mgo.Dial("mongodb://earl:AllenWalker1!@ds111279.mlab.com:11279/vera")
+	s := GetConnectionFromFile()
+	session, err := mgo.Dial(s + "/vera")
 	if err != nil {
 		panic(err)
 	}
@@ -49,7 +65,7 @@ func PostInstruction(c *gin.Context) {
 	session.SetMode(mgo.Monotonic, true)
 
 	collection := session.DB("test").C("instruction")
-	err = collection.Insert(&models.Instruction{ID: "Ale", EventStatus: "Test Event Status", EventName: "Test event name"})
+	err = collection.Insert(&models.Instruction{EventStatus: "Test Event Status", EventName: "Test event name"})
 
 	if err != nil {
 		log.Fatal(err)
